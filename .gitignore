@@ -1,0 +1,55 @@
+# Entornos virtuales de Python
+venv/
+env/
+*.venv
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos de dependencias de Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.whl
+
+# Archivos de Laravel (PHP)
+/saturn-web/vendor/
+/saturn-web/storage/logs/*.log
+/saturn-web/.env
+/saturn-web/public/hot
+/saturn-web/public/storage
+
+# Archivos generados por el proyecto
+/output/
+/saturn-investments/output/
+
+# Bases de datos locales
+*.db
+*.sqlite
+
+# Archivos de MetaTrader 5 (EAs compilados)
+/src/ea/**/*.ex5
+
+# Archivos temporales y de sistema
+.DS_Store
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Editor-specific files (PyCharm)
+.idea/
+*.iml
+
+# Dependencias locales (si usas pipenv o poetry)
+Pipfile.lock
+poetry.lock
