@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'saturn_app',
     'forex_app',
+    'core_app',
     'commodities_app',
     'equities_app',
     'interest_rates_app',

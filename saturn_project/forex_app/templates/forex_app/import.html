@@ -7,7 +7,7 @@
     <div class="col-md-12">
         <h1 class="mt-4">Importar Datos Forex</h1>
         <p>Sube archivos CSV con datos históricos de pares de divisas para su procesamiento y almacenamiento en la base de datos.</p>
-        <form method="post" enctype="multipart/form-data" class="mt-4" id="importForm" data-redirect-url="{% url 'forex_app:forex_import' %}">
+        <form method="post" enctype="multipart/form-data" class="mt-4" id="importForm" data-redirect-url="{% url 'forex_app:import' %}">
             {% csrf_token %}
             <div class="mb-3">
                 <label for="csvFile" class="form-label">Seleccionar archivo CSV</label>
