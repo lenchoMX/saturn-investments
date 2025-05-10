@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>{{ title }}</h1>
+        <div class="alert alert-success">
+            <p><strong>Total filas:</strong> {{ stats.total_rows }}</p>
+            <p><strong>Filas válidas:</strong> {{ stats.valid_rows }}</p>
+            <p><strong>Filas insertadas:</strong> {{ stats.inserted_rows }}</p>
+            {% if stats.errors %}
+                <p><strong>Errores:</strong> {{ stats.errors|length }}</p>
+                <ul>
+                    {% for error in stats.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <a href="{% url 'forex_app:forex_import' %}" class="btn btn-primary">Volver a importar</a>
+    </div>
+</body>
+</html>

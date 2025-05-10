@@ -1,0 +1,10 @@
+# Requerimientos del proyecto Saturn Investments
+# Estas son las dependencias instaladas en el entorno virtual "saturn" con sus versiones específicas.
+
+django==5.2
+psycopg2-binary==2.9.10
+asgiref==3.8.1
+sqlparse==0.5.3
+tzdata==2025.2
+pytz==2025.2
+django-timescaledb==0.2.13
