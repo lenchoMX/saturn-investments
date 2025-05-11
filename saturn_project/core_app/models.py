@@ -10,6 +10,7 @@ class SupportedEntity(models.Model):
     )
 
     name = models.CharField(max_length=10, unique=True, help_text="Ejemplo: EUR/USD, XAU/USD, AAPL")
+    symbol = models.CharField(max_length=10, unique=True, help_text="Formato para historical_data, ej: EURUSD, XAUUSD, AAPL")
     entity_type = models.CharField(max_length=20, choices=ENTITY_TYPES, help_text="Tipo de entidad")
     description = models.CharField(max_length=100, blank=True, help_text="Descripción opcional")
     active = models.BooleanField(default=True, help_text="Indica si la entidad está activa")
