@@ -9,3 +9,4 @@ tzdata==2025.2
 pytz==2025.2
 django-timescaledb==0.2.13
 pandas==2.2.2
+django-tables2==2.7.5 

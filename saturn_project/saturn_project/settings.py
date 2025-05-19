@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'interest_rates_app',
     'crypto_app',
     'economic_events_app',
+    'django_tables2',
 ]
 
 MIDDLEWARE = [
