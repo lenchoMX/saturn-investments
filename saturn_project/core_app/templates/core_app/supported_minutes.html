@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mt-4">Índice de Minutas Soportadas</h1>
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Impacto</th>
+                    <th>País</th>
+                    <th>Fuente</th>
+                    <th>Frecuencia</th>
+                    <th>Mercados Afectados</th>
+                    <th>Símbolos Afectados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for minute in minutes %}
+                <tr>
+                    <td>{{ minute.name }}</td>
+                    <td>{{ minute.description }}</td>
+                    <td>{{ minute.impact }}</td>
+                    <td>{{ minute.country }}</td>
+                    <td>{{ minute.source }}</td>
+                    <td>{{ minute.frequency }}</td>
+                    <td>{{ minute.markets_affected }}</td>
+                    <td>{{ minute.symbols_affected }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Importación Exitosa - Saturn Investments{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-success mt-5" role="alert">
+            <h1 class="alert-heading">Importación Exitosa</h1>
+            <p>Los datos del calendario económico han sido importados correctamente.</p>
+            <hr>
+            <a href="{% url 'economic_events_app:import_calendar' %}" class="btn btn-primary">Volver a Importar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

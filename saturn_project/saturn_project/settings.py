@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'equities_app',
     'interest_rates_app',
     'crypto_app',
+    'economic_events_app',
 ]
 
 MIDDLEWARE = [

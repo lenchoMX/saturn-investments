@@ -12,6 +12,7 @@ import pytz
 from django.db.utils import ProgrammingError
 from .forms import ImportFileForm
 from .models import HistoricalData, TempHistoricalData
+from core_app.models import SupportedEntity  # Importar el modelo
 
 # Configurar logging
 logging.basicConfig(
@@ -30,10 +31,28 @@ def import_data(request):
             form = ImportFileForm(request.POST, request.FILES)
             if form.is_valid():
                 file = form.cleaned_data['file']
+                currency_pair_symbol = request.POST.get('currency_pair')  # Obtener el symbol seleccionado
                 logging.info(f"Archivo subido: {file.name}")
-                # Extraer símbolo del nombre del archivo (ej. DAT_MT_USDMXN_M1_2010.csv)
-                match = re.match(r'DAT_MT_(\w+)_M1_\d{4}\.csv', file.name)
-                symbol = match.group(1) if match else 'UNKNOWN'
+
+                # Verificar que se haya seleccionado un par
+                if not currency_pair_symbol:
+                    messages.error(request, 'Debe seleccionar un par de divisas.')
+                    return render(request, 'forex_app/import.html', {
+                        'form': form,
+                        'currency_pairs': SupportedEntity.objects.filter(entity_type='currency_pair', active=True).order_by('name'),
+                        'title': 'Importar Datos Forex'
+                    })
+
+                # Verificar si el símbolo es válido
+                if not SupportedEntity.objects.filter(symbol=currency_pair_symbol, entity_type='currency_pair', active=True).exists():
+                    messages.error(request, 'El par de divisas seleccionado no es válido o no está soportado.')
+                    return render(request, 'forex_app/import.html', {
+                        'form': form,
+                        'currency_pairs': SupportedEntity.objects.filter(entity_type='currency_pair', active=True).order_by('name'),
+                        'title': 'Importar Datos Forex'
+                    })
+
+                symbol = currency_pair_symbol  # Usar el símbolo seleccionado
 
                 # Guardar archivo en /output/raw_data/forex/
                 fs = FileSystemStorage(location='output/raw_data/forex/')
@@ -91,7 +110,6 @@ def import_data(request):
                             # Insertar lote
                             if len(batch) >= batch_size:
                                 TempHistoricalData.objects.bulk_create(batch)
-                                # TempHistoricalData.objects.bulk_create(records, ignore_conflicts=True)
                                 batch = []
                                 logging.info(f"Insertado lote de {batch_size} filas en temp_historical_data")
 
@@ -161,21 +179,37 @@ def import_data(request):
                 messages.error(request, f'Formulario inválido: {errors}')
         else:
             form = ImportFileForm()
+            currency_pairs = SupportedEntity.objects.filter(
+                entity_type='currency_pair',
+                active=True
+            ).order_by('name')
 
-        return render(request, 'forex_app/import.html', {'form': form, 'title': 'Importar Datos Forex'})
+        return render(request, 'forex_app/import.html', {
+            'form': form,
+            'currency_pairs': currency_pairs,
+            'title': 'Importar Datos Forex'
+        })
 
     except ProgrammingError as e:
         logging.error(f"Error de base de datos en import_data: {str(e)}")
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'error': f'Error de base de datos: {str(e)}'})
         messages.error(request, f'Error de base de datos: {str(e)}')
-        return render(request, 'forex_app/import.html', {'form': ImportFileForm(), 'title': 'Importar Datos Forex'})
+        return render(request, 'forex_app/import.html', {
+            'form': ImportFileForm(),
+            'currency_pairs': SupportedEntity.objects.filter(entity_type='currency_pair', active=True).order_by('name'),
+            'title': 'Importar Datos Forex'
+        })
     except Exception as e:
         logging.error(f"Error inesperado en import_data: {str(e)}")
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'error': f'Error en el servidor: {str(e)}'})
         messages.error(request, f'Error en el servidor: {str(e)}')
-        return render(request, 'forex_app/import.html', {'form': ImportFileForm(), 'title': 'Importar Datos Forex'})
+        return render(request, 'forex_app/import.html', {
+            'form': ImportFileForm(),
+            'currency_pairs': SupportedEntity.objects.filter(entity_type='currency_pair', active=True).order_by('name'),
+            'title': 'Importar Datos Forex'
+        })
 
 def analysis(request):
     return render(request, 'forex_app/analysis.html', {'title': 'Análisis Forex'})

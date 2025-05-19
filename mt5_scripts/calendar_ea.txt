@@ -1,0 +1,116 @@
+//+------------------------------------------------------------------+
+//|                                                  calendar_ea.mq5 |
+//|                        Copyright 2025, RootCode                   |
+//|                                             https://www.x.ai     |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2025, RootCode"
+#property link      "https://www.x.ai"
+#property version   "1.00"
+
+#include <Mql5/Calendar.mqh>
+
+// Inputs para personalizar el rango de fechas y tipo
+input string range_type = "Week";     // Tipo de rango: "Week" o "Month"
+input datetime reference_date = D'2025.05.14'; // Fecha de referencia
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                     |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   Print("Iniciando EA para extraer calendario económico...");
+   ExtractCalendarData();
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Función para calcular el rango de fechas                          |
+//+------------------------------------------------------------------+
+void CalculateDateRange(datetime &start, datetime &end)
+{
+   datetime now = reference_date;
+   if(range_type == "Week")
+   {
+      start = now - (TimeDayOfWeek(now) * 86400); // Inicio de la semana (lunes)
+      end = start + (6 * 86400); // Fin de la semana (domingo)
+   }
+   else if(range_type == "Month")
+   {
+      start = now - ((TimeDay(now) - 1) * 86400); // Inicio del mes
+      end = start + (30 * 86400); // Fin aproximado del mes (ajustable)
+   }
+   else
+   {
+      start = now;
+      end = now + (7 * 86400); // Default: 1 semana
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Función para extraer datos del calendario y escribirlos en CSV   |
+//+------------------------------------------------------------------+
+void ExtractCalendarData()
+{
+   MqlCalendarValue values[];
+   datetime start_date, end_date;
+   
+   // Calcular rango de fechas según el tipo
+   CalculateDateRange(start_date, end_date);
+   Print("Rango de fechas: ", TimeToString(start_date), " a ", TimeToString(end_date));
+
+   // Obtener eventos en el rango de fechas especificado
+   if(!CalendarValueHistory(values, start_date, end_date))
+   {
+      Print("Error al obtener el calendario económico: ", GetLastError());
+      return;
+   }
+
+   // Abrir archivo CSV para escritura
+   int handle = FileOpen("mt5_calendar.csv", FILE_WRITE|FILE_CSV|FILE_COMMON, ',');
+   if(handle == INVALID_HANDLE)
+   {
+      Print("Error al abrir archivo CSV: ", GetLastError());
+      return;
+   }
+
+   // Escribir encabezado
+   FileWrite(handle, "DateTime", "Currency", "Event", "Impact", "Actual", "Forecast", "Previous", "Timezone");
+
+   // Procesar cada evento
+   for(int i = 0; i < ArraySize(values); i++)
+   {
+      // Mapear impacto (1 = Low, 2 = Medium, 3 = High)
+      string impact;
+      switch(values[i].impact)
+      {
+         case 1: impact = "Low"; break;
+         case 2: impact = "Medium"; break;
+         case 3: impact = "High"; break;
+         default: impact = "Unknown";
+      }
+
+      // Obtener valores del evento
+      string date_time = TimeToString(values[i].time, TIME_DATE|TIME_MINUTES);
+      string currency = values[i].country;
+      string event_name = values[i].event_name;
+      string actual = values[i].actual != "" ? values[i].actual : "";
+      string forecast = values[i].forecast != "" ? values[i].forecast : "";
+      string previous = values[i].previous != "" ? values[i].previous : "";
+      string timezone = "UTC"; // Asumimos UTC como zona horaria base
+
+      // Escribir en CSV
+      FileWrite(handle, date_time, currency, event_name, impact, actual, forecast, previous, timezone);
+   }
+
+   // Cerrar archivo
+   FileClose(handle);
+   Print("Datos del calendario exportados a mt5_calendar.csv en la carpeta común.");
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                   |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   Print("EA finalizado.");
+}

@@ -75,4 +75,27 @@ python manage.py setup_database
   source c:/Projects/Software/Python/saturn_investiment/saturn/bin/activate
   ```
 
+## 4. `core_migrate_fresh`
+
+**Descripción**: Este comando borra las tablas de la aplicación `core_app` de la base de datos, vuelve a aplicar las migraciones específicas de `core_app` y ejecuta la importación de datos desde un archivo SQL. Es útil para reiniciar las tablas de `core_app` durante el desarrollo sin afectar las tablas de Django u otras aplicaciones, y para poblar la base de datos con datos iniciales.
+
+**Ubicación**: `core_app/management/commands/core_migrate_fresh.py`
+
+**Uso**:
+```bash
+python manage.py core_migrate_fresh
+```
+
+**Salida Esperada**:
+- Solicita confirmación antes de proceder (ingresa 'y' para confirmar).
+- Si se confirma, muestra mensajes indicando las tablas de `core_app` que se están borrando (bajo el encabezado "Drop migrations:") y las migraciones que se aplican para recrear las tablas (bajo el encabezado "Running migrations:").
+- También muestra mensajes sobre la importación de datos desde el archivo SQL `supported_entity.sql`.
+- Si ocurre un error, muestra un mensaje de error con detalles.
+- Si no se confirma, cancela la operación con un mensaje de error.
+
+**Notas**:
+- Este comando solo afecta las tablas asociadas con la aplicación `core_app`.
+- No elimina datos ni tablas de Django (como `auth_user`, `django_migrations`, etc.) ni de otras aplicaciones.
+- Es ideal para entornos de desarrollo cuando necesitas reiniciar las tablas de `core_app` sin afectar el resto del sistema.
+- **Advertencia**: Este comando elimina datos de las tablas de `core_app`. Asegúrate de tener una copia de seguridad si hay datos importantes.
 Si tienes preguntas sobre estos comandos o necesitas comandos adicionales, por favor indícalo para poder asistirte.

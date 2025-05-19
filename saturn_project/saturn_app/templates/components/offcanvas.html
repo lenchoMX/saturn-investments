@@ -21,9 +21,10 @@
                     <li><a class="dropdown-item" href="/equities/">Equities</a></li>
                     <li><a class="dropdown-item" href="/interest_rates/">Interest Rates</a></li>
                     <li><a class="dropdown-item" href="/crypto/">Cryptocurrencies</a></li>
+                    <li><a class="dropdown-item" href="{% url 'economic_events_app:import_calendar' %}">Eventos Económicos</a></li>
                     <div class="dropdown-divider"></div>
-                    <li><a class="dropdown-item" href="{% url 'core_app:supported_entities_index' %}">Instrumentos
-                            Soportados</a></li>
+                    <li><a class="dropdown-item" href="{% url 'core_app:supported_entities_index' %}">Instrumentos Soportados</a></li>
+                    <li><a class="dropdown-item" href="{% url 'core_app:supported_minutes' %}">Minutas Soportadas</a></li>
                 </ul>
             </li>
         </ul>

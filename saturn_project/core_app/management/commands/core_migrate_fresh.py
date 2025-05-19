@@ -49,6 +49,7 @@ class Command(BaseCommand):
             
             # Eliminar archivos de migración existentes
             migration_dir = Path(__file__).resolve().parent.parent.parent / 'migrations'
+            
             if migration_dir.exists():
                 self.stdout.write(self.style.WARNING('Eliminando archivos de migración existentes...'))
                 for migration_file in migration_dir.glob('*.py'):

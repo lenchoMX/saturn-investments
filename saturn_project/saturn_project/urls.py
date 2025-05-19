@@ -26,4 +26,5 @@ urlpatterns = [
     path('', saturn_views.index, name='index'),
     path('forex/', include('forex_app.urls')),
     path('core/', include('core_app.urls')),
+    path('economic_events/', include('economic_events_app.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

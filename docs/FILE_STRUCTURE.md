@@ -3,6 +3,13 @@
 Estructura de directorios y archivos del proyecto:
 /saturn-investments
 ├── /saturn_project                 # Proyecto Django (carpeta principal)
+│   ├── /mt5_scripts
+│   │   ├── /eas
+│   │   │   ├── calendar_ea.mq5  # EA para obtener el calendario económico
+│   │   │   └── otros_eas.mq5    # Futuros EAs
+│   │   ├── /indicators          # Para indicadores personalizados (futuro)
+│   │   ├── /scripts             # Para scripts MQL5 (futuro)
+│   │   └── EAS_LIST.md          # Documento con el listado y descripciones de EAs
 │   ├── /saturn_app                 # Aplicación principal de Django (carpeta)
 │   │   ├── /migrations             # Migraciones de la base de datos
 │   │   ├── /templates              # Plantillas HTML para las vistas
@@ -50,6 +57,19 @@ Estructura de directorios y archivos del proyecto:
 │   │   ├── /views                  # Vistas para Cryptocurrencies (index, show, update, import, etc.)
 │   │   ├── /urls                   # Configuración de URLs para Cryptocurrencies
 │   │   └── /utils                  # Utilidades como lógica de importación de datos
+│   ├── /economic_events_app        # Aplicación para eventos económicos
+│   │   ├── /migrations             # Migraciones de la base de datos
+│   │   ├── /templates              # Plantillas HTML específicas para eventos económicos
+│   │   ├── /models                 # Modelos de datos para eventos económicos
+│   │   ├── /views                  # Vistas para eventos económicos (importación, etc.)
+│   │   └── /urls                   # Configuración de URLs para eventos económicos
+│   ├── /core_app                   # Aplicación para entidades y minutas soportadas
+│   │   ├── /migrations             # Migraciones de la base de datos
+│   │   ├── /templates              # Plantillas HTML para entidades y minutas soportadas
+│   │   ├── /models                 # Modelos de datos para entidades y minutas soportadas
+│   │   ├── /views                  # Vistas para entidades y minutas soportadas
+│   │   ├── /urls                   # Configuración de URLs para entidades y minutas soportadas
+│   │   └── /populate_minutes.py    # Script para poblar minutas soportadas
 │   └── /saturn_project             # Configuración del proyecto Django
 │       ├── /settings               # Configuración del proyecto (base de datos, etc.)
 │       └── /urls                   # Configuración de URLs del proyecto
