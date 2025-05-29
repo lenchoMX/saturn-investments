@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mt-4">Minutas para {{ symbol }}</h1>
+        <ul class="list-group mt-3">
+            {% for minute in minutes %}
+            <li class="list-group-item"><a href="{% url 'core_app:events_by_minute' minute.id %}">{{ minute.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

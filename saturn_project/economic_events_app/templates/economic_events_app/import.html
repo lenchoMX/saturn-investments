@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Importar Calendario Económico - Saturn Investments{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mt-4">Importar Calendario Económico</h1>
+        <p>Sube archivos CSV con datos de eventos económicos para su procesamiento y almacenamiento en la base de datos.</p>
+        <form method="post" enctype="multipart/form-data" class="mt-4" id="importForm" data-redirect-url="{% url 'economic_events_app:import_calendar' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="calendar_file" class="form-label">Seleccionar archivo CSV</label>
+                <input type="file" class="form-control" id="calendar_file" name="calendar_file" accept=".csv" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="importButton">Importar</button>
+        </form>
+        <div class="mt-4" id="loadingMessage" style="display: none;">
+            <p>Procesando importación, por favor espera...</p>
+        </div>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.getElementById('importForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const loadingMessage = document.getElementById('loadingMessage');
+    const importButton = document.getElementById('importButton');
+    const redirectUrl = form.dataset.redirectUrl;
+
+    // Mostrar mensaje de carga y deshabilitar botón
+    loadingMessage.style.display = 'block';
+    importButton.disabled = true;
+
+    try {
+        const response = await fetch('/economic_events/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: `Importación completada.`,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = redirectUrl;
+            });
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: data.error,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Error',
+            text: `Error al procesar la solicitud: ${error.message}`,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    } finally {
+        loadingMessage.style.display = 'none';
+        importButton.disabled = false;
+    }
+});
+</script>
+{% endblock %}

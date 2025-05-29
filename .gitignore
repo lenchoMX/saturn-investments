@@ -1,0 +1,67 @@
+# Archivos y directorios de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entorno virtual
+saturn/
+venv/
+env/
+ENV/
+
+# Archivos de Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+media/
+staticfiles/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de VSCode
+.vscode/
+.code-workspace
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.*
+lerna-debug.*
+
+# Directorios de salida y datos
+output/
+data/
+shared/files/forex/
+shared/swisseph/
+*.csv
+*.zip
+
+# Archivos de migraciones de Django (opcional, descomentar si no quieres versionar migraciones)
+# saturn_project/*/migrations/*

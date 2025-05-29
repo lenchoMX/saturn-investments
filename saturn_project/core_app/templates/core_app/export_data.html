@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Exportar Datos de la Base de Datos</h1>
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="tables">Selecciona las tablas para exportar:</label>
+            <div class="form-check">
+                {% for table in tables %}
+                    <input type="checkbox" class="form-check-input" id="table_{{ table }}" name="tables" value="{{ table }}">
+                    <label class="form-check-label" for="table_{{ table }}">{{ table }}</label><br>
+                {% empty %}
+                    <p>No se encontraron tablas en la base de datos.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Exportar</button>
+    </form>
+</div>
+{% endblock %}

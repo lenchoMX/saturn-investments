@@ -1,0 +1,208 @@
+//+------------------------------------------------------------------+
+//|                      Calendar.mq5                                |
+//|                      Copyright 2025, Frater Jupiter              |
+//|                      https://SaturnInvestment.mx                 |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2025, Frater Jupiter"
+#property link      "https://SaturnInvestment.mx"
+#property version   "1.00"
+
+// Enumeración para los meses en inglés
+enum ENUM_MONTH
+{
+   January = 1,   // January
+   February = 2,  // February
+   March = 3,     // March
+   April = 4,     // April
+   May = 5,       // May
+   June = 6,      // June
+   July = 7,      // July
+   August = 8,    // August
+   September = 9, // September
+   October = 10,  // October
+   November = 11, // November
+   December = 12  // December
+};
+
+// Inputs para seleccionar el mes y el año
+input ENUM_MONTH input_month = May;    // Month
+input int input_year = 2025;           // Year (e.g., 2025)
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                     |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   Print("Starting EA to extract economic calendar...");
+   
+   // Validar input_year
+   datetime current_time = TimeCurrent();
+   MqlDateTime current_dt;
+   TimeToStruct(current_time, current_dt);
+   int current_year = current_dt.year;
+   
+   if(input_year < 2000 || input_year > current_year + 1)
+   {
+      Print("Error: input_year must be between 2000 and ", current_year + 1, ". Current value: ", input_year);
+      return(INIT_PARAMETERS_INCORRECT);
+   }
+   
+   ExtractCalendarData();
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Function to calculate the date range for the selected month       |
+//+------------------------------------------------------------------+
+void CalculateDateRange(int month, int year, datetime &start, datetime &end)
+{
+   // Set the first day of the month
+   string start_str = StringFormat("%04d.%02d.01", year, month);
+   start = StringToTime(start_str);
+   
+   // Calculate the last day of the month at 23:59:59
+   MqlDateTime dt;
+   TimeToStruct(start, dt);
+   dt.mon = month + 1; // Next month
+   if(dt.mon > 12) { dt.mon = 1; dt.year = year + 1; } // Adjust year if necessary
+   string end_str = StringFormat("%04d.%02d.01", dt.year, dt.mon);
+   end = StringToTime(end_str) - 1; // Last second of the current month (23:59:59)
+   
+   // Calculate the number of days in the month
+   int days_in_month = (int)((end - start) / 86400) + 1;
+   Print("Selected month: ", month, "/", year, " has ", days_in_month, " days.");
+   
+   // Validate that the range is reasonable (e.g., not too far in the future)
+   datetime current_time = TimeCurrent();
+   MqlDateTime current_dt;
+   TimeToStruct(current_time, current_dt);
+   if(year > current_dt.year + 1 || (year == current_dt.year + 1 && month > current_dt.mon))
+   {
+      Print("Warning: Selected month (", month, "/", year, ") is far in the future. Data may be limited.");
+   }
+   
+   // Debug: Check if the range includes future dates
+   if(end > current_time)
+   {
+      Print("Note: Range includes future dates from ", TimeToString(current_time + 86400, TIME_DATE), " to ", TimeToString(end, TIME_DATE|TIME_MINUTES|TIME_SECONDS));
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Function to extract calendar data and write to CSV                |
+//+------------------------------------------------------------------+
+void ExtractCalendarData()
+{
+   MqlCalendarValue values[];
+   datetime start_date, end_date;
+   
+   // Calculate date range for the selected month
+   CalculateDateRange((int)input_month, input_year, start_date, end_date);
+   Print("Date range: ", TimeToString(start_date, TIME_DATE|TIME_MINUTES|TIME_SECONDS), " to ", TimeToString(end_date, TIME_DATE|TIME_MINUTES|TIME_SECONDS));
+
+   // Get events in the specified date range
+   if(!CalendarValueHistory(values, start_date, end_date))
+   {
+      Print("Error retrieving economic calendar: ", GetLastError());
+      return;
+   }
+
+   // Check if any events were found
+   int event_count = ArraySize(values);
+   Print("Retrieved ", event_count, " events for the specified range.");
+   if(event_count == 0)
+   {
+      Print("No events found in the specified range.");
+      return;
+   }
+
+   // Debug: Check the distribution of events by date
+   int event_days[];
+   ArrayResize(event_days, (int)((end_date - start_date) / 86400) + 1);
+   ArrayInitialize(event_days, 0);
+   for(int i = 0; i < event_count; i++)
+   {
+      MqlDateTime event_dt;
+      TimeToStruct(values[i].time, event_dt);
+      int day_index = (int)((values[i].time - start_date) / 86400);
+      if(day_index >= 0 && day_index < ArraySize(event_days))
+      {
+         event_days[day_index]++;
+      }
+   }
+   for(int i = 0; i < ArraySize(event_days); i++)
+   {
+      if(event_days[i] > 0)
+      {
+         datetime event_date = start_date + (i * 86400);
+         Print("Date ", TimeToString(event_date, TIME_DATE), ": ", event_days[i], " events");
+      }
+   }
+
+   // Open CSV file for writing
+   int handle = FileOpen("mt5_calendar.csv", FILE_WRITE|FILE_CSV|FILE_ANSI, ',');
+   if(handle == INVALID_HANDLE)
+   {
+      Print("Error opening CSV file: ", GetLastError());
+      return;
+   }
+
+   // Write header
+   FileWrite(handle, "DateTime", "Currency", "Event", "Impact", "Actual", "Forecast", "Previous", "Timezone");
+
+   // Process each event
+   for(int i = 0; i < ArraySize(values); i++)
+   {
+      MqlCalendarEvent event;
+      if(!CalendarEventById(values[i].event_id, event))
+      {
+         Print("Error retrieving event details: ", GetLastError());
+         continue;
+      }
+
+      // Get the country/currency associated with the event
+      MqlCalendarCountry country;
+      string currency = "";
+      if(!CalendarCountryById(event.country_id, country))
+      {
+         Print("Error retrieving country details for country_id: ", event.country_id, ", Error: ", GetLastError());
+      }
+      else
+      {
+         currency = country.currency;
+      }
+
+      // Map impact (0 = None, 1 = Low, 2 = Medium, 3 = High)
+      string impact;
+      switch(event.importance)
+      {
+         case CALENDAR_IMPORTANCE_LOW: impact = "Low"; break;
+         case CALENDAR_IMPORTANCE_MODERATE: impact = "Medium"; break;
+         case CALENDAR_IMPORTANCE_HIGH: impact = "High"; break;
+         default: impact = "None";
+      }
+
+      // Get event values
+      string date_time = TimeToString(values[i].time, TIME_DATE|TIME_MINUTES);
+      string event_name = event.name;
+      string actual = values[i].HasActualValue() ? StringFormat("%.2f", values[i].GetActualValue()) : "";
+      string forecast = values[i].HasForecastValue() ? StringFormat("%.2f", values[i].GetForecastValue()) : "";
+      string previous = values[i].HasPreviousValue() ? StringFormat("%.2f", values[i].GetPreviousValue()) : "";
+      string timezone = "GMT"; // Assume GMT as base timezone
+
+      // Write to CSV
+      FileWrite(handle, date_time, currency, event_name, impact, actual, forecast, previous, timezone);
+   }
+
+   // Close file
+   FileClose(handle);
+   Print("Calendar data exported to mt5_calendar.csv in the common folder.");
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                   |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   Print("EA terminated.");
+}
